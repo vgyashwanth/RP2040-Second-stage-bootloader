@@ -1,0 +1,9 @@
+arm-none-eabi-gcc  .\BootLoaderStage2\boot_loader_stage2.c .\Build\crc.c -T 
+ .\BootLoaderStage2\linker.ld -mcpu=cortex-m0plus -nostdlib -o .\Build\boot_loader_stage2.elf
+
+arm-none-eabi-objcopy -O  binary .\Build\boot_loader_stage2.elf .\Build\boot_loader_stage2.bin
+
+python UF2Convertor/uf2/utils/uf2conv.py -b 0x10000000 
+-f 0xe48bff56 -c .\Build\boot_loader_stage2.bin -o .\Build\bootStage2.uf2
+
+copy Build\bootStage2.uf2 D:
