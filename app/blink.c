@@ -20,7 +20,7 @@ int main()
     // Set output enable for GPIO 25 in SIO
     SIO_GPIO_OE_SET |= 1 << 25;
 
-    while (true)
+    while (a)
     {
         // Wait for some time
         for (uint32_t i = 0; i < 100000; ++i);

@@ -1,1 +1,1 @@
-__attribute__((section(".crc"))) unsigned char crc[4] = {0xaa, 0x3f, 0x26, 0x95};
+__attribute__((section(".crc"))) unsigned char crc[4] = {0x5b, 0x9d, 0x24, 0x73};

@@ -10,6 +10,12 @@
 #define SSI_SSIENR                  (*(volatile uint32_t *) (SSI_BASE + 0x008))
 #define SSI_BAUDR                   (*(volatile uint32_t *) (SSI_BASE + 0x014))
 #define SSI_SPI_CTRLR0              (*(volatile uint32_t *) (SSI_BASE + 0x0f4))
+// M0PLUS
+#define M0PLUS_BASE                 (0xe0000000)
+#define M0PLUS_VTOR                 (*(volatile uint32_t *) (M0PLUS_BASE + 0xed08))
+
+//Reset Handler
+extern void resetHandler();
 
 // A brief list of steps to take
 // 1. Setup IO_QSPI pins for XIP
@@ -30,11 +36,27 @@ __attribute__((section(".bootStage2"))) void bootStage2(void)
     SSI_SPI_CTRLR0 = (6 << 2) | (2 << 8) | (0x03 << 24); // Set address length to 24-bits, instruction length to 8-bits and command to Read Data (03h)
     SSI_SSIENR = 1; // Enable SSI
 
+    // Enabling Quad SPI is still pending we will do it
+    // Work to do by Yashwanth
+    
     // 3. Enable XIP Cache
     // It is enabled by default. Take a look at https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf#page=128
+    // Enabling Quad SPI mode still pending 
 
-    int (*main)() = (int (*)())0x10000101; // Note 0x10000100 + 0x1 (this forces the instructions to be interpreted as thumb)
-    main();
+   // Adjust the VTOR to reach the vector table
+   // Store the stack value in the MSP register
+   // call the reset handler present in the startupcode which will takecare of 
+   // initializing .bss .data and calling main
+   // calling main
+
+   M0PLUS_VTOR = XIP_BASE + 0x100; // Flash base address + bootcodestag2 size
+
+   // 2. Load the stack pointer from the first entry in the vector table
+   asm("msr msp, %0" :: "r"(*(uint32_t *)(M0PLUS_VTOR + 0x0)));
+
+   
+   // 3. Call the resetHandler using the second entry in the vector table
+    asm("bx %0" :: "r"(*(uint32_t *)(M0PLUS_VTOR + 0x4)));
 
     // Just to be safe if we come back here
     while(true);
